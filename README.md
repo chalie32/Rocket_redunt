@@ -27,7 +27,7 @@ This rocket flight computer is designed for model rocketry applications, providi
 - **Wireless telemetry** via LoRa radio
 - **Data logging** with comprehensive sensor fusion
 
-The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and uses modular, well-documented code for easy customization and maintenance.
+The system is built on Arduino-compatible hardware (tested on Teensy 4.0) and uses modular, well-documented code for easy customization and maintenance.
 
 ## ✨ Features
 
