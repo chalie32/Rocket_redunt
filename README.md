@@ -35,7 +35,7 @@ The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and us
 - **MPU6050 IMU**: 6-axis motion tracking with DMP (Digital Motion Processor)
 - **BMP280 Barometer**: High-precision altitude and temperature measurement
 - **GPS Module**: Location tracking with satellite count monitoring
-- **Voltage Monitoring**: Dual battery voltage measurement
+- **Voltage Monitoring**: voltage measurement
 
 ### Flight Control
 - **Multi-phase detection**: Automatic transition through flight phases
@@ -66,8 +66,7 @@ The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and us
 - **Recovery Relay**: Connected to pin 7
 
 ### Power System
-- **Primary Battery**: Connected to analog pin A0
-- **Secondary Battery**: Connected to analog pin A1
+- **Primary Battery**: Connected to analog pin A1
 - **Voltage Dividers**: 2.5:1.9 ratio for voltage monitoring
 
 ### Connections
@@ -79,7 +78,6 @@ Teensy 4.1 Pinout:
 ├── Pin 17:   BMP280 SDA (Wire1)
 ├── Pin 7:    GPS RX (Serial2)
 ├── Pin 8:    GPS TX (Serial2)
-├── Pin A0:   Battery Voltage 1
 ├── Pin A1:   Battery Voltage 2
 └── SPI Pins: LoRa Module (default SPI pins)
 ```
@@ -108,36 +106,6 @@ Teensy 4.1 Pinout:
 | **GPSHandler** | Location tracking and satellite data | Serial2 |
 | **LoRaHandler** | Wireless telemetry transmission | SPI |
 
-## 📦 Installation
-
-### Prerequisites
-- Arduino IDE 1.8.x or 2.x
-- Teensy support package (if using Teensy)
-
-### Required Libraries
-```bash
-# Install these libraries through Arduino Library Manager:
-- Adafruit BMP280 Library
-- MPU6050 (by Electronic Cats)
-- TinyGPS++
-- LoRa (by Sandeep Mistry)
-- I2Cdev
-```
-
-### Setup Steps
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/rocket-flight-computer.git
-   cd rocket-flight-computer
-   ```
-
-2. **Install libraries** through Arduino IDE Library Manager
-
-3. **Configure hardware** according to the pinout above
-
-4. **Adjust configuration** in `src/Config.h` for your specific setup
-
-5. **Upload firmware** to your microcontroller
 
 ## ⚙️ Configuration
 
@@ -281,56 +249,6 @@ src/
 3. **Check system status** and battery levels
 4. **Review configuration** for next flight
 
-## 🛠️ Development
-
-### Building from Source
-```bash
-# Clone repository
-git clone https://github.com/yourusername/rocket-flight-computer.git
-
-# Install dependencies
-# (Use Arduino Library Manager for required libraries)
-
-# Configure your setup in src/Config.h
-# Compile and upload via Arduino IDE
-```
-
-### Testing
-- **Bench testing**: Verify sensor readings at rest
-- **Motion testing**: Check orientation and acceleration
-- **Altitude testing**: Validate barometer readings
-- **Communication testing**: Confirm LoRa range and reliability
-
-### Adding New Sensors
-1. Create new handler class (see existing handlers as examples)
-2. Add configuration constants to `Config.h`
-3. Initialize in `main.cpp` setup function
-4. Update sensor data structure and reading functions
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-- Follow existing code style and organization
-- Add appropriate comments and documentation
-- Test thoroughly before submitting
-- Update README if adding new features
-
-## ⚠️ Safety Notice
-
-**This system controls recovery deployment - improper use could result in rocket damage or injury.**
-
-- Always test recovery system on the ground
-- Verify apogee detection thresholds for your rocket
-- Follow NAR/TRA safety codes
-- Use appropriate recovery delays for your application
 
 ## 📄 License
 
@@ -345,5 +263,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Happy Flying! 🚀**
-
-*For questions, issues, or contributions, please use the GitHub issue tracker.* 
