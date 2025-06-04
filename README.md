@@ -36,11 +36,13 @@ The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and us
 - **BMP280 Barometer**: High-precision altitude and temperature measurement
 - **GPS Module**: Location tracking with satellite count monitoring
 - **Voltage Monitoring**: voltage measurement
+- **Audio Notifications**: Buzzer with popular music themes and flight event sounds
 
 ### Flight Control
 - **Multi-phase detection**: Automatic transition through flight phases
 - **Apogee detection**: Sophisticated algorithm using altitude, velocity, and acceleration
 - **Recovery deployment**: Relay-controlled parachute/recovery system activation
+- **Audio feedback**: Musical notifications for flight events and state changes
 - **Configurable thresholds**: Easily adjustable detection parameters
 
 ### Communication
@@ -64,6 +66,7 @@ The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and us
 - **GPS**: Any NMEA-compatible module (Serial2, pins 7/8)
 - **LoRa Radio**: SX1276/SX1278 compatible (SPI)
 - **Recovery Relay**: Connected to pin 7
+- **Buzzer**: Passive piezo buzzer connected to pin 2
 
 ### Power System
 - **Primary Battery**: Connected to analog pin A1
@@ -72,6 +75,7 @@ The system is built on Arduino-compatible hardware (tested on Teensy 4.1) and us
 ### Connections
 ```
 Teensy 4.1 Pinout:
+├── Pin 2:    Buzzer (Passive Piezo)
 ├── Pin 3:    MPU6050 Interrupt
 ├── Pin 7:    Recovery Relay Control
 ├── Pin 16:   BMP280 SCL (Wire1)
@@ -92,7 +96,7 @@ Teensy 4.1 Pinout:
 │ • BMP280 (Baro) │    │ • State      │    │ • LoRa Radio    │
 │ • GPS Module    │    │   Machine    │    │ • Recovery      │
 │ • Voltage Mon.  │    │ • Apogee     │    │   Relay         │
-│                 │    │   Detection  │    │                 │
+│                 │    │   Detection  │    │ • Buzzer Music  │
 └─────────────────┘    └──────────────┘    └─────────────────┘
 ```
 
@@ -105,6 +109,7 @@ Teensy 4.1 Pinout:
 | **BMP280Handler** | Altitude and temperature measurement | I2C (Wire1) |
 | **GPSHandler** | Location tracking and satellite data | Serial2 |
 | **LoRaHandler** | Wireless telemetry transmission | SPI |
+| **BuzzerHandler** | Audio notifications and music playback | PWM (Pin 2) |
 
 
 ## ⚙️ Configuration
@@ -128,13 +133,32 @@ const int GPS_BAUD_RATE = 9600;                    // GPS baud rate
 
 // Hardware Pins
 const int RELAY_PIN = 7;                           // Recovery system pin
+const int BUZZER_PIN = 2;                          // Buzzer pin
 const int VOLTAGE_PIN_0 = A0;                      // Battery monitor 1
 ```
+
+### Audio Features
+
+The system automatically plays popular music themes at key moments:
+
+**Automatic Music Playback**:
+- **System Ready**: Super Mario Bros Theme plays after successful initialization
+- **Launch Detection**: Exciting fanfare when rocket launches
+- **Apogee Detection**: Victory fanfare at maximum altitude  
+- **Landing/Descent**: Tetris Theme plays when coming down safely
+- **Error Alerts**: Warning sounds when sensors fail during initialization
+
+**Flight Event Sounds**:
+- System startup with simple ascending tones
+- Flight state changes trigger appropriate audio feedback
+- Launch detection plays exciting fanfare
+- Apogee detection plays victory fanfare
+- Safe landing celebration with full song
 
 ### Calibration
 
 1. **Sea Level Pressure**: Adjust `DEFAULT_SEA_LEVEL_PRESSURE` for accurate altitude
-2. **Launch Threshold**: Tune `LAUNCH_ACCEL_THRESHOLD` based on rocket acceleration
+2. **Launch Threshold**: Tune `LAUNCH_ACCEL_THRESHOLD` based on rocket acceleration  
 3. **Apogee Sensitivity**: Modify `DESCENT_ALTITUDE_THRESHOLD` for deployment timing
 
 ## 🛸 Flight Phases
@@ -206,16 +230,18 @@ src/
 ├── MPU6050Handler.h/.cpp    # IMU sensor management
 ├── BMP280Handler.h/.cpp     # Barometer sensor management
 ├── GPSHandler.h/.cpp        # GPS module management
-└── LoRaHandler.h/.cpp       # LoRa radio communication
+├── LoRaHandler.h/.cpp       # LoRa radio communication
+└── BuzzerHandler.h/.cpp     # Audio notifications and music playback
 ```
 
 ### Key Functions
 
 #### Main Loop (`main.cpp`)
-- **`setup()`**: Initialize all components
-- **`loop()`**: 10Hz sensor reading and data transmission
+- **`setup()`**: Initialize all components and play Mario theme when ready
+- **`loop()`**: 10Hz sensor reading, data transmission, and flight monitoring
 - **`readSensorData()`**: Collect data from all sensors
-- **`updateFlightController()`**: Process flight state
+- **`updateFlightController()`**: Process flight state and detect changes
+- **`handleStateChange()`**: Play appropriate sounds for flight phase transitions
 - **`outputSensorData()`**: Serial output formatting
 - **`transmitLoRaData()`**: Wireless telemetry
 
@@ -225,30 +251,37 @@ src/
 - **`calculateVerticalAcceleration()`**: Gravity-compensated acceleration
 - **Apogee detection algorithm**: Multi-sensor confirmation
 
+#### Buzzer Handler (`BuzzerHandler.cpp`)
+- **`playSong()`**: Play different melodies and notification sounds
+- **Popular music themes**: Mario (initialization), Tetris (landing)
+- **Flight notifications**: Launch, apogee, error audio feedback
+- **Automatic playback**: Songs triggered by system events
+
 ## 🚀 Usage
 
 ### Pre-Flight Checklist
 1. ✅ Power on system and verify serial output
-2. ✅ Confirm GPS lock acquisition
-3. ✅ Check LoRa telemetry reception
-4. ✅ Verify all sensor readings are reasonable
-5. ✅ Test recovery system deployment (manually)
-6. ✅ Secure all connections and mount in rocket
+2. ✅ Listen for Super Mario theme (confirms successful initialization)
+3. ✅ Confirm GPS lock acquisition
+4. ✅ Check LoRa telemetry reception
+5. ✅ Verify all sensor readings are reasonable
+6. ✅ Test recovery system deployment (manually)
+7. ✅ Secure all connections and mount in rocket
 
 ### Launch Sequence
 1. **Install in rocket** with recovery system connected
-2. **Power on** and wait for GPS lock
+2. **Power on** and wait for GPS lock (listen for Mario theme when ready)
 3. **Arm recovery system** (if applicable)
-4. **Launch** - system automatically detects flight phases
+4. **Launch** - system automatically detects flight phases with audio feedback
 5. **Monitor telemetry** during flight
-6. **Recovery** - parachute deploys at apogee
+6. **Recovery** - parachute deploys at apogee with victory sound
+7. **Landing** - Tetris theme plays during descent for safe landing celebration
 
 ### Post-Flight
 1. **Download data** via serial connection
 2. **Analyze flight profile** using logged data
 3. **Check system status** and battery levels
 4. **Review configuration** for next flight
-
 
 ## 📄 License
 
@@ -259,6 +292,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Arduino Community** for excellent libraries and documentation
 - **Model Rocketry Community** for inspiration and testing feedback
 - **Open Source Contributors** who make projects like this possible
+- **Robson Couto** for the amazing Arduino buzzer songs collection
 
 ---
 

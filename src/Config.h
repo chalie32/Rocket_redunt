@@ -25,6 +25,7 @@ const int VOLTAGE_PIN_0 = A0;                      // Battery voltage monitor 1
 const int VOLTAGE_PIN_1 = A1;                      // Battery voltage monitor 2
 const int RELAY_PIN = 7;                           // Recovery system relay pin
 const int MPU_INTERRUPT_PIN = 3;                   // MPU6050 interrupt pin
+const int BUZZER_PIN = 2;                          // Buzzer for audio notifications
 
 // =====================================================================
 // VOLTAGE MEASUREMENT CONFIGURATION
@@ -47,6 +48,32 @@ const unsigned long MPU_DATA_UPDATE_INTERVAL = 100; // MPU data processing inter
 // GPS Configuration
 const unsigned long GPS_LOCK_TIMEOUT = 60000;      // GPS lock timeout (ms)
 const unsigned long GPS_STATUS_UPDATE_INTERVAL = 5000; // GPS status update interval (ms)
+
+// =====================================================================
+// KALMAN FILTER CONFIGURATION
+// =====================================================================
+
+// MPU6050 Enhanced IMU Extended Kalman Filter Parameters
+// Enhanced orientation EKF - quaternion-based filter with bias estimation
+const float MPU_ORIENTATION_EKF_Q_ANGLE = 0.001f;  // Process noise for quaternion states
+const float MPU_ORIENTATION_EKF_Q_BIAS = 0.0001f;  // Process noise for gyroscope bias states
+const float MPU_ORIENTATION_EKF_R_ACCEL = 0.5f;    // Accelerometer measurement noise
+
+// Acceleration filters - simple 1D filters for acceleration data
+const float MPU_ACCEL_Q_ANGLE = 0.01f;             // Process noise for acceleration
+const float MPU_ACCEL_Q_VELOCITY = 0.1f;           // Process noise for acceleration rate
+const float MPU_ACCEL_R_MEASURE = 0.1f;            // Measurement noise
+
+// BMP280 Kalman Filter Parameters
+// Altitude filter - moderate responsiveness for flight dynamics
+const float BMP_ALTITUDE_Q_ANGLE = 0.01f;          // Process noise for altitude
+const float BMP_ALTITUDE_Q_VELOCITY = 0.1f;        // Process noise for vertical velocity
+const float BMP_ALTITUDE_R_MEASURE = 0.5f;         // Measurement noise
+
+// Temperature filter - low noise as temperature changes slowly
+const float BMP_TEMP_Q_ANGLE = 0.001f;             // Process noise for temperature
+const float BMP_TEMP_Q_VELOCITY = 0.01f;           // Process noise for temperature rate
+const float BMP_TEMP_R_MEASURE = 0.1f;             // Measurement noise
 
 // =====================================================================
 // FLIGHT CONTROLLER CONFIGURATION

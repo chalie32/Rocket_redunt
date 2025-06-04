@@ -8,6 +8,14 @@ BMP280Handler::BMP280Handler() :
     seaLevelPressure(1013.25), // Standard sea level pressure in hPa
     rawAltitude(0),
     temperature(0),
+    // Initialize Kalman filters with appropriate noise parameters
+    // Altitude filter: moderate process noise for good responsiveness
+    altitudeFilter(0.01f, 0.1f, 0.5f),
+    // Temperature filter: low process noise as temperature changes slowly
+    temperatureFilter(0.001f, 0.01f, 0.1f),
+    // Initialize filtered values
+    filteredAltitude(0),
+    filteredTemperature(0),
     initialized(false) {
 }
 
@@ -92,6 +100,10 @@ bool BMP280Handler::initialize() {
     // Calculate altitude
     rawAltitude = bmp.readAltitude(seaLevelPressure);
     
+    // Initialize Kalman filters with first readings
+    filteredTemperature = temperatureFilter.update(temperature);
+    filteredAltitude = altitudeFilter.update(rawAltitude);
+    
     // Print initial readings for debugging
     Serial.print(F("Initial BMP280 readings - Temperature: "));
     Serial.print(temperature);
@@ -101,7 +113,7 @@ bool BMP280Handler::initialize() {
     Serial.print(rawAltitude);
     Serial.println(F("m"));
     
-    Serial.println(F("BMP280 initialized successfully!"));
+    Serial.println(F("BMP280 initialized successfully with Kalman filters!"));
     initialized = true;
     return true;
 }
@@ -118,6 +130,8 @@ void BMP280Handler::update() {
     float newTemp = bmp.readTemperature();
     if (!isnan(newTemp)) {
         temperature = newTemp;
+        // Apply Kalman filter to temperature
+        filteredTemperature = temperatureFilter.update(temperature);
     } else {
         Serial.println(F("Warning: Invalid temperature reading from BMP280"));
     }
@@ -135,6 +149,9 @@ void BMP280Handler::update() {
         Serial.println(F("Warning: Invalid altitude calculation from BMP280"));
         return;
     }
+    
+    // Apply Kalman filter to altitude
+    filteredAltitude = altitudeFilter.update(rawAltitude);
 }
 
 void BMP280Handler::setSeaLevelPressure(float pressure) {
@@ -144,12 +161,38 @@ void BMP280Handler::setSeaLevelPressure(float pressure) {
     Serial.println(F(" hPa"));
 }
 
+// Return filtered values by default
 float BMP280Handler::getTemperature() {
-    return temperature;
+    return filteredTemperature;
 }
 
 float BMP280Handler::getAltitude() {
+    return filteredAltitude;
+}
+
+// New methods to get raw (unfiltered) values
+float BMP280Handler::getRawTemperature() {
+    return temperature;
+}
+
+float BMP280Handler::getRawAltitude() {
     return rawAltitude;
+}
+
+// Kalman filter configuration methods
+void BMP280Handler::setAltitudeFilterParams(float q_angle, float q_velocity, float r_measure) {
+    altitudeFilter.setProcessNoise(q_angle, q_velocity);
+    altitudeFilter.setMeasurementNoise(r_measure);
+}
+
+void BMP280Handler::setTemperatureFilterParams(float q_angle, float q_velocity, float r_measure) {
+    temperatureFilter.setProcessNoise(q_angle, q_velocity);
+    temperatureFilter.setMeasurementNoise(r_measure);
+}
+
+void BMP280Handler::resetFilters() {
+    altitudeFilter.reset();
+    temperatureFilter.reset();
 }
 
 bool BMP280Handler::isReady() {
